@@ -30,7 +30,7 @@ public class GenericStateMachine<S, E> implements StateMachine<S, E> {
     }
 
     @Override
-    public void fire(E event, Object context) {
+    public void fire(Object event, Object context) {
         Map<E, Transition<S, E>> eventTransitions = transitionMap.get(currentState);
         if (eventTransitions == null) {
             throw new IllegalStateException("No transitions defined for state: " + currentState);
