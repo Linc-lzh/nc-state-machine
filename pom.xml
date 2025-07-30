@@ -11,7 +11,7 @@
 
     <modules>
         <module>state-machine</module>
-        <module>state-test</module>
+        <module>file-process</module>
     </modules>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
