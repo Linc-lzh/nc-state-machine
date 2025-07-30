@@ -14,24 +14,13 @@ public class OrderStateMachineBuilder {
 
     public static StateMachine<OrderState, OrderEvent> build() {
         // 创建状态
-        State<OrderState> created = new State<>(OrderState.CREATED);
-        State<OrderState> pendingPayment = new State<>(OrderState.PENDING_PAYMENT)
-                .withEntryAction((state, event, context) ->
-                        System.out.println("进入待支付状态，发送支付提醒"));
-
-        State<OrderState> paid = new State<>(OrderState.PAID)
-                .withEntryAction((state, event, context) ->
-                        System.out.println("支付成功，库存锁定"));
-
-        State<OrderState> shipped = new State<>(OrderState.SHIPPED)
-                .withEntryAction((state, event, context) ->
-                        System.out.println("订单已发货，发送物流通知"));
-
-        State<OrderState> delivered = new State<>(OrderState.DELIVERED);
-        State<OrderState> cancelled = new State<>(OrderState.CANCELLED);
-        State<OrderState> refunded = new State<>(OrderState.REFUNDED)
-                .withEntryAction((state, event, context) ->
-                        System.out.println("退款处理中..."));
+        State<OrderState, OrderEvent> created = new State<>(OrderState.CREATED);
+        State<OrderState, OrderEvent> pendingPayment = new State<>(OrderState.PENDING_PAYMENT);
+        State<OrderState, OrderEvent> paid = new State<>(OrderState.PAID);
+        State<OrderState, OrderEvent> shipped = new State<>(OrderState.SHIPPED);
+        State<OrderState, OrderEvent> delivered = new State<>(OrderState.DELIVERED);
+        State<OrderState, OrderEvent> cancelled = new State<>(OrderState.CANCELLED);
+        State<OrderState, OrderEvent> refunded = new State<>(OrderState.REFUNDED);
 
         // 创建状态机
         StateMachine<OrderState, OrderEvent> machine =
@@ -49,6 +38,7 @@ public class OrderStateMachineBuilder {
                         System.out.println("处理支付逻辑")));
 
         machine.addTransition(new Transition<>(pendingPayment, cancelled, OrderEvent.CANCEL));
+        machine.addTransition(new Transition<>(pendingPayment, shipped, OrderEvent.SHIP));
 
         machine.addTransition(new Transition<>(paid, shipped, OrderEvent.SHIP)
                 .withAction((state, event, context) ->

@@ -1,10 +1,10 @@
 package nc.sm.core.component;
 
 
-public class State<S> {
+public class State<S, E> {
     private final S state;
-    private Action<S, ?> entryAction;
-    private Action<S, ?> exitAction;
+    private Action<S, E> entryAction;
+    private Action<S, E> exitAction;
 
     public State(S state) {
         this.state = state;
@@ -14,21 +14,21 @@ public class State<S> {
         return state;
     }
 
-    public State<S> withEntryAction(Action<S, ?> entryAction) {
+    public State<S, E> withEntryAction(Action<S, E> entryAction) {
         this.entryAction = entryAction;
         return this;
     }
 
-    public State<S> withExitAction(Action<S, ?> exitAction) {
+    public State<S, E> withExitAction(Action<S, E> exitAction) {
         this.exitAction = exitAction;
         return this;
     }
 
-    public Action<S, ?> getEntryAction() {
+    public Action<S, E> getEntryAction() {
         return entryAction;
     }
 
-    public Action<S, ?> getExitAction() {
+    public Action<S, E> getExitAction() {
         return exitAction;
     }
 }
