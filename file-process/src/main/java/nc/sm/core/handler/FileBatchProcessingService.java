@@ -2,11 +2,13 @@ package nc.sm.core.handler;
 
 import ch.qos.logback.classic.Logger;
 import nc.sm.core.component.DefaultFileProcessingStateMachine;
+import nc.sm.core.component.FileProcessingStateMachine;
 import nc.sm.core.config.StateMachineConfig;
 import nc.sm.core.context.FileProcessContext;
 import nc.sm.core.entity.FileProcessLog;
 import nc.sm.core.entity.FileProcessState;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;

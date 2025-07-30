@@ -25,5 +25,13 @@ public enum FileProcessState {
     }
 
     // getters...
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
 }
 
