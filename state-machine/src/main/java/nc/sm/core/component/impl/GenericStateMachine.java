@@ -1,23 +1,29 @@
 package nc.sm.core.component.impl;
 
+import nc.sm.biz.file.config.StateMachineConfig;
+import nc.sm.biz.file.entity.FileProcessState;
 import nc.sm.biz.file.exception.FileProcessException;
 import nc.sm.biz.file.pojo.FileProcessContext;
 import nc.sm.core.component.StateMachine;
 import nc.sm.core.component.StateMachineListener;
 import nc.sm.core.component.Transition;
+import nc.sm.core.component.pojo.RetryPolicy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GenericStateMachine<S, E> implements StateMachine<S, E> {
     private S currentState;
+    private final StateMachineConfig config;
     private final Map<S, Map<E, Transition<S, E>>> transitionMap = new ConcurrentHashMap<>();
     private final List<StateMachineListener<S, E>> listeners = new ArrayList<>();
 
-    public GenericStateMachine(S initialState) {
+    public GenericStateMachine(S initialState, StateMachineConfig config) {
+        this.config = config;
         this.currentState = initialState;
     }
 
@@ -56,7 +62,12 @@ public class GenericStateMachine<S, E> implements StateMachine<S, E> {
 
         // 执行转换动作
         if (transition.getAction() != null) {
-            transition.getAction().execute(currentState, event, context);
+            // 执行状态处理器
+            if (transition.isAsync()) {
+                executeAsync(transition, event, context);
+            } else {
+                executeWithRetry(transition, event, context);
+            }
         }
 
         S oldState = currentState;
@@ -93,4 +104,41 @@ public class GenericStateMachine<S, E> implements StateMachine<S, E> {
             listener.onTransitionDenied(from, event, context);
         }
     }
+
+    private void executeWithRetry(Transition<S, E> transition, E event, FileProcessContext context) throws FileProcessException {
+        RetryPolicy retryPolicy = transition.getRetryPolicy();
+        int attempts = 0;
+
+        while (true) {
+            try {
+                attempts++;
+                transition.getAction().execute(currentState, event, context);
+                return;
+            } catch (FileProcessException e) {
+                if (attempts >= retryPolicy.getMaxAttempts()) {
+                    throw e;
+                }
+
+                try {
+                    Thread.sleep(retryPolicy.getBackoffPeriod());
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new FileProcessException("Interrupted during retry", ie);
+                }
+            }
+        }
+    }
+
+    private void executeAsync(Transition<S, E> handler, E event, FileProcessContext context) {
+        // 使用线程池执行异步处理
+        CompletableFuture.runAsync(() -> {
+            try {
+                executeWithRetry(handler, event,  context);
+            } catch (Exception e) {
+                System.out.println("Async state handling failed");
+                context.addLog("ASYNC_ERROR", "Async handling failed: " + e.getMessage());
+            }
+        }, config.getAsyncExecutor());
+    }
+
 }

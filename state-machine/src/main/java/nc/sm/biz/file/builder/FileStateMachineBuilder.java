@@ -1,5 +1,6 @@
 package nc.sm.biz.file.builder;
 
+import nc.sm.biz.file.config.StateMachineConfig;
 import nc.sm.biz.file.entity.FileProcessEvent;
 import nc.sm.biz.file.entity.FileProcessState;
 import nc.sm.biz.file.exception.FileProcessException;
@@ -20,6 +21,7 @@ public class FileStateMachineBuilder {
     public static StateMachine<FileProcessState, FileProcessEvent> build() {
         FileLogRepository fileLogRepository = new FileLogRepository();
         FileRepository fileRepository = new FileRepository();
+        StateMachineConfig config = new StateMachineConfig();
         // 创建状态
         State<FileProcessState, FileProcessEvent> init = new State<>(FileProcessState.INIT);
         State<FileProcessState, FileProcessEvent> validate = new State<>(FileProcessState.FILE_VALIDATION);
@@ -30,7 +32,7 @@ public class FileStateMachineBuilder {
         State<FileProcessState, FileProcessEvent> upload = new State<>(FileProcessState.FILE_UPLOAD);
 
         // 创建状态机
-        StateMachine<FileProcessState, FileProcessEvent> machine = new GenericStateMachine<>(FileProcessState.INIT);
+        StateMachine<FileProcessState, FileProcessEvent> machine = new GenericStateMachine<>(FileProcessState.INIT, config);
 
         // 添加状态转换
         machine.addTransition(new Transition<>(init, validate, FileProcessEvent.READ_INIT_FILE));
