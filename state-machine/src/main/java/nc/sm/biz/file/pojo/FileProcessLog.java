@@ -1,4 +1,6 @@
-package nc.sm.core.entity;
+package nc.sm.biz.file.pojo;
+
+import nc.sm.biz.file.entity.FileProcessState;
 
 public class FileProcessLog {
     private final long timestamp;

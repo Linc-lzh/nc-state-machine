@@ -1,5 +1,7 @@
 package nc.sm.core.component.impl;
 
+import nc.sm.biz.file.exception.FileProcessException;
+import nc.sm.biz.file.pojo.FileProcessContext;
 import nc.sm.core.component.StateMachine;
 import nc.sm.core.component.StateMachineListener;
 import nc.sm.core.component.Transition;
@@ -25,12 +27,12 @@ public class GenericStateMachine<S, E> implements StateMachine<S, E> {
     }
 
     @Override
-    public void fire(E event) {
+    public void fire(E event) throws FileProcessException {
         fire(event, null);
     }
 
     @Override
-    public void fire(E event, Object context) {
+    public void fire(E event, FileProcessContext context) throws FileProcessException {
         Map<E, Transition<S, E>> eventTransitions = transitionMap.get(currentState);
         if (eventTransitions == null) {
             throw new IllegalStateException("No transitions defined for state: " + currentState);
@@ -42,7 +44,7 @@ public class GenericStateMachine<S, E> implements StateMachine<S, E> {
         }
 
         // 执行守卫条件检查
-        if (transition.getGuard() != null && !transition.getGuard().evaluate(context)) {
+        if (transition.getGuard() != null && context != null && !transition.getGuard().evaluate(context)) {
             notifyTransitionDenied(currentState, event, context);
             return;
         }

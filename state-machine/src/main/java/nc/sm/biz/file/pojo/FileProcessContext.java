@@ -1,7 +1,6 @@
-package nc.sm.core.context;
+package nc.sm.biz.file.pojo;
 
-import nc.sm.core.entity.FileProcessLog;
-import nc.sm.core.entity.FileProcessState;
+import nc.sm.biz.file.entity.FileProcessState;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class FileProcessContext {
     private String fileId;
     private String fileName;
+    private FileInfo fileInfo;
     private FileProcessState currentState;
     private Map<String, Object> metadata = new ConcurrentHashMap<>();
     private List<FileProcessLog> logs = new CopyOnWriteArrayList<>();
@@ -28,6 +28,14 @@ public class FileProcessContext {
 
     // getters and setters...
 
+
+    public FileInfo getFileInfo() {
+        return fileInfo;
+    }
+
+    public void setFileInfo(FileInfo fileInfo) {
+        this.fileInfo = fileInfo;
+    }
 
     public String getFileId() {
         return fileId;
@@ -128,6 +136,3 @@ public class FileProcessContext {
         logs.add(log);
     }
 }
-
-
-
