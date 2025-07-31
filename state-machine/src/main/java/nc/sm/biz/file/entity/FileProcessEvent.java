@@ -1,0 +1,12 @@
+package nc.sm.biz.file.entity;
+
+public enum FileProcessEvent {
+    READ_INIT_FILE,
+    INIT_FILE_REGISTER,
+    WRITE_UNIT_FILE,
+    UNIT_FILE_PERSIST,
+    BATCH_PROCESSING,
+    RETURN_FILE_GENERATE,
+    READ_RETURN_FILE,
+    SUMMARY_FILE_GENERATE
+}
